@@ -59,7 +59,6 @@ class Denarnica():
         print(self.stanje)
         if self.stanje.get() - znesek_dviga >= 0:
             self.stanje.set(self.stanje.get()-znesek_dviga)
-            self.odlivi.append(znesek_dviga)
             self.promet.append('-' + str(znesek_dviga))
             return self.stanje.get()        
         return False
@@ -68,7 +67,6 @@ class Denarnica():
         znesek_pologa = float(self.znesek.get())
         self.stanje.set(self.stanje.get() + znesek_pologa)
         if True:
-            self.prilivi.append(znesek_pologa) 
             self.promet.append('+' + str(znesek_pologa))      
         return self.stanje.get()
 
@@ -76,28 +74,34 @@ class Denarnica():
     def promet_v_dobro(self):
         okno = Toplevel()
         okno.title('Promet v dobro')
-        promet = ""
-        for znesek in self.prilivi:
-            promet = promet + str('+' + str(znesek)+ '\n')
-        if len(promet) == 0:
+        zneski = ""
+        for znesek in self.promet:
+        	if '+' in znesek:
+        		zneski = zneski + str(str(znesek)+ '\n')
+        	else:
+        		pass
+        if len(zneski) == 0:
              Message(okno, text='Na računu še ni bilo prilivov.').pack()
              zapri = Button(okno, text='Zapri', command=okno.destroy).pack()
         else:
-            Message(okno, text=promet).pack()
+            Message(okno, text=zneski).pack()
             zapri = Button(okno, text='Zapri', command=okno.destroy).pack()
         
 
     def promet_v_breme(self):
         okno = Toplevel()
         okno.title('Promet v breme')
-        promet = ""
-        for znesek in self.odlivi:
-            promet = promet + str('-' + str(znesek)+ '\n')
-        if len(promet) == 0:
+        zneski = ""
+        for znesek in self.promet:
+        	if '-' in znesek:
+        		zneski = zneski + str(str(znesek)+ '\n')
+        	else:
+        		pass
+        if len(zneski) == 0:
              Message(okno, text='Na računu še ni bilo odlivov.').pack()
              zapri = Button(okno, text='Zapri', command=okno.destroy).pack()
         else:
-            Message(okno, text=promet).pack()
+            Message(okno, text=zneski).pack()
             zapri = Button(okno, text='Zapri', command=okno.destroy).pack()
 
     def skupni_promet(self):
@@ -119,20 +123,19 @@ class Denarnica():
         datoteka = filedialog.askopenfilename(initialdir = '/', title = 'Odpri datotoeko', filetypes = (('Text document', '*.txt'), ('all files', '*.*')))
         with open(datoteka,'r') as dat:
             for vrstica in dat:
-                if '+' in vrstica:
-                    self.prilivi.append(vrstica.strip())
-                elif '-' in vrstica:
-                    self.odlivi.append(vrstica.strip())
-                else:
-                    pass
+            	if '+' in vrstica:
+            		self.promet.append(vrstica.strip())
+            		self.stanje.set(self.stanje.get() + float((vrstica[1:-2])))
+            	else:
+            		self.promet.append(vrstica.strip())
+            		self.stanje.set(self.stanje.get() - float((vrstica[1:-2])))
+        return self.stanje.get()
 
     def shrani_datoteko(self):
-        file_out = filedialog.asksaveasfilename(initialdir = '/', title = 'Ime datoteke', filetypes = (('Text document', '*.txt'), ('all files', '*.*')))
+        file_out = filedialog.asksaveasfilename(initialdir = '.txt', title = 'Ime datoteke', filetypes = (('Text document', '*.txt'), ('all files', '*.*')))
         with open(file_out, 'w', encoding='utf8') as dat:
-            for znesek in self.prilivi:
-                print('+' + str(self.znesek.get()), file = dat)
-            for znesek in self.odlivi:
-                print('-' + str(self.znesek.get()), file = dat)
+            for znesek in self.promet:
+                print(str(znesek), file = dat)
 
 
 
